@@ -1,20 +1,31 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import SignIn from "./components/SignIn";
+import ToDo from "./components/ToDo";
+import Credit from "./components/Credit";
+import SignOut from "./components/SignOut";
 
-export default function App() {
+const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
+
+function AppDrawer() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Drawer.Navigator initialRouteName="Home">
+      <Drawer.Screen name="ToDo" component={ToDo} />
+      <Drawer.Screen name="Credit" component={Credit} />
+      <Drawer.Screen name="SignOut" component={SignOut} />
+    </Drawer.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="SignIn" component={SignIn} options={{ headerShown: true }} />
+        <Stack.Screen name="AppDrawer" component={AppDrawer} options={{ headerShown: false, gestureEnabled: false }} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
