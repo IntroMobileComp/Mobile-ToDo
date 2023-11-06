@@ -11,7 +11,7 @@ import styles from '../style/ToDo.style';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 export default function ToDo({ navigation }) {
     const [token, setToken] = useState('');
@@ -113,19 +113,19 @@ export default function ToDo({ navigation }) {
         }
     };
 
-    const [fontsLoaded] = useFonts({
-        'Kanit': require('../assets/font/Kanit-Regular.ttf'),
-    })
+    // const [fontsLoaded] = useFonts({
+    //     'Kanit': require('../assets/font/Kanit-Regular.ttf'),
+    // })
     
-    const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-            await SplashScreen.hideAsync();
-        }
-    }, [fontsLoaded])
+    // const onLayoutRootView = useCallback(async () => {
+    //     if (fontsLoaded) {
+    //         await SplashScreen.hideAsync();
+    //     }
+    // }, [fontsLoaded])
 
-    if (!fontsLoaded) {
-        return null;
-    }
+    // if (!fontsLoaded) {
+    //     return null;
+    // }
 
     useEffect(() => {
         const retrieveToken = async () => {
@@ -148,14 +148,15 @@ export default function ToDo({ navigation }) {
     }, [token]);
 
     moment.locale('th');
+
     return (
-        <View style={styles.container} onLayout={onLayoutRootView}>
-            <Text style={styles.header}>ToDoList</Text>
+        <View style={styles.container}>
+            <Text style={styles.header}>ToDo List</Text>
             <DataTable>
                 <DataTable.Header>
-                    <DataTable.Title style={style.text}>กิจกรรม</DataTable.Title>
-                    <DataTable.Title>วัน/เวลา</DataTable.Title>
-                    <DataTable.Title>แก้ไข</DataTable.Title>
+                    <DataTable.Title><Text style={style.text}>กิจกรรม</Text></DataTable.Title>
+                    <DataTable.Title ><Text style={style.text}>วัน/เวลา</Text></DataTable.Title>
+                    <DataTable.Title><Text style={style.text}>แก้ไข</Text></DataTable.Title>
                 </DataTable.Header>
                 {activity.map((item) => (
                     <DataTable.Row key={item.idActivity}>

@@ -6,12 +6,32 @@ import ToDo from "./components/ToDo";
 import Credit from "./components/Credit";
 import SignOut from "./components/SignOut";
 
+import AppLoading from 'expo-app-loading';
+import { useCallback } from "react";
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 function AppDrawer() {
+
+  const [fontsLoaded] = useFonts({
+    'Kanit': require('./assets/fonts/Kanit-Regular.ttf'),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return <AppLoading/>;
+  }
+
   return (
-    <Drawer.Navigator initialRouteName="Home">
+    <Drawer.Navigator initialRouteName="Home" onLayout={onLayoutRootView}>
       <Drawer.Screen name="ToDo" component={ToDo} />
       <Drawer.Screen name="Credit" component={Credit} />
       <Drawer.Screen name="SignOut" component={SignOut} />
