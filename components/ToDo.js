@@ -36,7 +36,6 @@ export default function ToDo({ navigation }) {
         const endpoint = formState.editMode ? `https://b11f-161-200-191-177.ngrok-free.app/activities/${formState.currentActivity.idActivity}` : 'https://b11f-161-200-191-177.ngrok-free.app/activities';
         const method = formState.editMode ? 'PUT' : 'POST';
         const data = formState.editMode ? { ...formState.currentActivity } : { "name": formState.currentActivity.name, "when": formState.currentActivity.when};
-        console.log(data);
         axios({
             method,
             url: endpoint,
