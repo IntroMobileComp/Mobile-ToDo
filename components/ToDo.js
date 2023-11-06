@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Alert, StyleSheet, Modal, Button, TextInput, TouchableOpacity } from 'react-native';
 import { DataTable } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,7 +8,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import styles from '../style/ToDo.style';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 
+SplashScreen.preventAutoHideAsync();
 
 export default function ToDo({ navigation }) {
     const [token, setToken] = useState('');
@@ -110,6 +113,20 @@ export default function ToDo({ navigation }) {
         }
     };
 
+    const [fontsLoaded] = useFonts({
+        'Kanit': require('../assets/font/Kanit-Regular.ttf'),
+    })
+    
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded])
+
+    if (!fontsLoaded) {
+        return null;
+    }
+
     useEffect(() => {
         const retrieveToken = async () => {
             try {
@@ -132,11 +149,11 @@ export default function ToDo({ navigation }) {
 
     moment.locale('th');
     return (
-        <View style={styles.container}>
+        <View style={styles.container} onLayout={onLayoutRootView}>
             <Text style={styles.header}>ToDoList</Text>
             <DataTable>
                 <DataTable.Header>
-                    <DataTable.Title>กิจกรรม</DataTable.Title>
+                    <DataTable.Title style={style.text}>กิจกรรม</DataTable.Title>
                     <DataTable.Title>วัน/เวลา</DataTable.Title>
                     <DataTable.Title>แก้ไข</DataTable.Title>
                 </DataTable.Header>
@@ -196,3 +213,10 @@ export default function ToDo({ navigation }) {
         </View>
     );
 }
+
+const style = StyleSheet.create({
+    text: {
+        fontFamily: 'Kanit',
+        fontSize: 18,
+    }
+})
