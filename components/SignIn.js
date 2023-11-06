@@ -10,18 +10,20 @@ export default function SignIn({ navigation }) {
 
     const signIn = async () => {
         axios.post(
-            'https://cache111.com/todoapi/tokens',
+            // 'https://cache111.com/todoapi/tokens',
+            'https://b11f-161-200-191-177.ngrok-free.app/tokens',
             {
-                id: id,
+                idUser: id,
                 Password: password,
             },
             {
-                headers: { /* Authorization: 'Bearer ' + token */ }, timeout: 3000
+                // headers: { /* Authorization: 'Bearer ' + token */ }, timeout: 3000
+                headers: { "ngrok-skip-browser-warning": "69420" },
             }
         )
             .then(async (response) => {
                 await AsyncStorage.setItem('token', response.data.token);
-                console.log(response.data.token);
+                // console.log(response.data.token);
                 // Alert.alert("Success", "Login successful.");
                 navigation.navigate('AppDrawer');
             })

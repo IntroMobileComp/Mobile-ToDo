@@ -28,13 +28,15 @@ export default function ToDo({ navigation }) {
         setSelectedDate(currentDate);
         setFormState(prevState => ({
             ...prevState,
-            currentActivity: { ...prevState.currentActivity, activitiesTime: currentDate }
+            currentActivity: { ...prevState.currentActivity, when: currentDate }
         }));
     };
+
     const handleActivitySubmit = () => {
-        const endpoint = formState.editMode ? `https://3ca6-161-200-191-20.ngrok-free.app/Activity/${formState.currentActivity.activityId}` : 'https://3ca6-161-200-191-20.ngrok-free.app/Activity';
+        const endpoint = formState.editMode ? `https://b11f-161-200-191-177.ngrok-free.app/activities/${formState.currentActivity.idActivity}` : 'https://b11f-161-200-191-177.ngrok-free.app/activities';
         const method = formState.editMode ? 'PUT' : 'POST';
-        const data = formState.editMode ? { ...formState.currentActivity } : { "activityName": "", "activitiesTime": new Date() };
+        const data = formState.editMode ? { ...formState.currentActivity } : { "name": formState.currentActivity.name, "when": formState.currentActivity.when};
+        console.log(data);
         axios({
             method,
             url: endpoint,
@@ -43,12 +45,13 @@ export default function ToDo({ navigation }) {
         })
             .then(response => {
                 if (formState.editMode) {
-                    const updatedActivities = activity.map(act => act.activityId === formState.currentActivity.activityId ? formState.currentActivity : act);
+                    const updatedActivities = activity.map(act => act.idActivity === formState.currentActivity.idActivity ? formState.currentActivity : act);
                     setActivity(updatedActivities);
                 } else {
                     const newActivity = response.data;
                     setActivity([...activity, newActivity]);
                 }
+                fetchActivity(token)
             })
             .catch(error => {
                 console.error("There was an error processing the activity: ", error);
@@ -58,15 +61,36 @@ export default function ToDo({ navigation }) {
             });
     };
 
-
     const formatToThaiDateTime = (dateTime) => {
         const date = moment(dateTime);
         const year = date.year() + 543;  // Convert CE to BE
         return `${date.format('D MMM')} ${year} เวลา ${date.format('HH:mm')} น`;
     };
+
+    const fetchActivity = (token) => {
+        fetch('https://b11f-161-200-191-177.ngrok-free.app/activities', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, "ngrok-skip-browser-warning": "69420"
+            },
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    Alert.alert("Error", "You are not authorized to view this page.");
+                    return;
+                }
+                return response;
+            })
+            .then(response => response.json())
+            .then(data => {
+                setActivity(data);
+            })
+            .catch(error => console.error(error));
+    }
+
     const deleteActivity = async (activityId) => {
         try {
-            const response = await fetch(`https://3ca6-161-200-191-20.ngrok-free.app/Activity/${activityId}`, {
+            const response = await fetch(`https://b11f-161-200-191-177.ngrok-free.app/activities/${activityId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -77,6 +101,7 @@ export default function ToDo({ navigation }) {
             if (response.status === 200) {
                 setActivity(prevActivity => prevActivity.filter(act => act.activityId !== activityId));
                 Alert.alert('Success', 'Activity deleted successfully');
+                fetchActivity(token);
             } else {
                 Alert.alert('Error', 'Failed to delete the activity');
             }
@@ -85,6 +110,7 @@ export default function ToDo({ navigation }) {
             Alert.alert('Error', 'Failed to delete the activity');
         }
     };
+
     useEffect(() => {
         const retrieveToken = async () => {
             try {
@@ -98,52 +124,40 @@ export default function ToDo({ navigation }) {
         };
         retrieveToken();
     }, []);
+
     useEffect(() => {
         if (token) {
-            fetch('https://3ca6-161-200-191-20.ngrok-free.app/Activity', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`, "ngrok-skip-browser-warning": "69420"
-                },
-            })
-                .then(response => {
-                    if (response.status === 401) {
-                        Alert.alert("Error", "You are not authorized to view this page.");
-                        return;
-                    }
-                    return response;
-                })
-                .then(response => response.json())
-                .then(data => setActivity(data))
-                .catch(error => console.error(error));
+            fetchActivity(token);
         }
     }, [token]);
+
     moment.locale('th');
     return (
         <View style={styles.container}>
             <Text style={styles.header}>ToDoList</Text>
             <DataTable>
                 <DataTable.Header>
-                    <DataTable.Title>Activities</DataTable.Title>
-                    <DataTable.Title>Date/Time</DataTable.Title>
-                    <DataTable.Title>Actions</DataTable.Title>
+                    <DataTable.Title>กิจกรรม</DataTable.Title>
+                    <DataTable.Title>วัน/เวลา</DataTable.Title>
+                    <DataTable.Title>แก้ไข</DataTable.Title>
                 </DataTable.Header>
                 {activity.map((item) => (
-                    <DataTable.Row key={item.activityId}>
-                        <DataTable.Cell>{item.activityName}</DataTable.Cell>
-                        <DataTable.Cell>{formatToThaiDateTime(item.activitiesTime)}</DataTable.Cell>
+                    <DataTable.Row key={item.idActivity}>
+                        <DataTable.Cell>{item.name}</DataTable.Cell>
+                        <DataTable.Cell>{formatToThaiDateTime(item.when)}</DataTable.Cell>
                         <DataTable.Cell style={styles.actions}>
                             <TouchableOpacity onPress={() => setFormState({ modalVisible: true, editMode: true, currentActivity: item })} style={styles.buttonText}>
                                 <MaterialCommunityIcons name="pencil" size={24} color="#2196F3" />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => deleteActivity(item.activityId)} style={styles.buttonText}>
+                            <TouchableOpacity onPress={() => deleteActivity(item.idActivity)} style={styles.buttonText}>
                                 <MaterialCommunityIcons name="delete" size={24} color="#f44336" />
                             </TouchableOpacity>
                         </DataTable.Cell>
                     </DataTable.Row>
                 ))}
             </DataTable>
-            <Button title="Add Activity" onPress={() => setFormState({ modalVisible: true, editMode: false, currentActivity: null })} />
+
+            <Button title="เพิ่มกิจกรรม" onPress={() => setFormState({ modalVisible: true, editMode: false, currentActivity: null })} />
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -156,13 +170,13 @@ export default function ToDo({ navigation }) {
                     <View style={{ width: '80%', padding: 20, backgroundColor: 'white', borderRadius: 10 }}>
                         <Text>{formState.editMode ? "Edit Activity" : "Add Activity"}</Text>
                         <TextInput
-                            value={formState.currentActivity?.activityName || ''}
-                            onChangeText={text => setFormState(prevState => ({ ...prevState, currentActivity: { ...prevState.currentActivity, activityName: text } }))}
+                            value={formState.currentActivity?.name || ''}
+                            onChangeText={text => setFormState(prevState => ({ ...prevState, currentActivity: { ...prevState.currentActivity, name: text } }))}
                             placeholder="Activity Name"
                             style={{ borderBottomWidth: 1, borderBottomColor: '#ccc' }}
                         />
                         <Button
-                            title="Pick Date & Time"
+                            title="เลือกวัน/เวลา"
                             onPress={() => setShowDateTimePicker(true)}
                         />
 
@@ -174,8 +188,8 @@ export default function ToDo({ navigation }) {
                                 onChange={onChange}
                             />
                         )}
-                        <Button title="Submit" onPress={handleActivitySubmit} />
-                        <Button title="Cancel" onPress={() => setFormState(prevState => ({ ...prevState, modalVisible: false, editMode: false, currentActivity: null }))} />
+                        <Button title="ยืนยัน" onPress={handleActivitySubmit} />
+                        <Button title="ยกเลิก" onPress={() => setFormState(prevState => ({ ...prevState, modalVisible: false, editMode: false, currentActivity: null }))} />
                     </View>
                 </View>
             </Modal>
