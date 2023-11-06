@@ -7,6 +7,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function SignIn({ navigation }) {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    }
 
     const signIn = async () => {
         axios.post(
@@ -39,12 +44,19 @@ export default function SignIn({ navigation }) {
                 placeholder="ID"
                 keyboardType='numeric'
                 onChangeText={setId} />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                onChangeText={setPassword}
-            />
+            <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder="Password"
+                    secureTextEntry={!showPassword}
+                    onChangeText={setPassword}
+                />
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                    <Text style={styles.showHideText}>
+                        {showPassword ? 'Hide' : 'Show'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
             <TouchableOpacity style={styles.button} onPress={signIn}>
                 <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
@@ -65,6 +77,21 @@ const styles = StyleSheet.create({
         margin: 12,
         borderWidth: 1,
         padding: 10,
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        margin: 12,
+    },
+    passwordInput: {
+        flex: 1,
+        height: 40,
+        padding: 10,
+    },
+    showHideText: {
+        padding: 10,
+        color: '#333',
     },
     button: {
         alignItems: 'center',
