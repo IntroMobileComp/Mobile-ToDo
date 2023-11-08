@@ -8,10 +8,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 import styles from '../style/ToDo.style';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
-
-// SplashScreen.preventAutoHideAsync();
 
 export default function ToDo({ navigation }) {
     const [token, setToken] = useState('');
@@ -23,6 +19,7 @@ export default function ToDo({ navigation }) {
         editMode: false,
         currentActivity: null
     });
+    const apiPath = 'https://6fb4-161-200-191-32.ngrok-free.app';
 
 
     const onChange = (event, selectedDate) => {
@@ -36,7 +33,7 @@ export default function ToDo({ navigation }) {
     };
 
     const handleActivitySubmit = () => {
-        const endpoint = formState.editMode ? `https://b11f-161-200-191-177.ngrok-free.app/activities/${formState.currentActivity.idActivity}` : 'https://b11f-161-200-191-177.ngrok-free.app/activities';
+        const endpoint = formState.editMode ? `${apiPath}/activities/${formState.currentActivity.idActivity}` : `${apiPath}/activities`;
         const method = formState.editMode ? 'PUT' : 'POST';
         const data = formState.editMode ? { ...formState.currentActivity } : { "name": formState.currentActivity.name, "when": selectedDate };
         axios({
@@ -70,7 +67,7 @@ export default function ToDo({ navigation }) {
     };
 
     const fetchActivity = (token) => {
-        fetch('https://b11f-161-200-191-177.ngrok-free.app/activities', {
+        fetch(`${apiPath}/activities`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`, "ngrok-skip-browser-warning": "69420"
@@ -92,7 +89,7 @@ export default function ToDo({ navigation }) {
 
     const deleteActivity = async (activityId) => {
         try {
-            const response = await fetch(`https://b11f-161-200-191-177.ngrok-free.app/activities/${activityId}`, {
+            const response = await fetch(`${apiPath}/activities/${activityId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -112,20 +109,6 @@ export default function ToDo({ navigation }) {
             Alert.alert('Error', 'Failed to delete the activity');
         }
     };
-
-    // const [fontsLoaded] = useFonts({
-    //     'Kanit': require('../assets/font/Kanit-Regular.ttf'),
-    // })
-    
-    // const onLayoutRootView = useCallback(async () => {
-    //     if (fontsLoaded) {
-    //         await SplashScreen.hideAsync();
-    //     }
-    // }, [fontsLoaded])
-
-    // if (!fontsLoaded) {
-    //     return null;
-    // }
 
     useEffect(() => {
         const retrieveToken = async () => {

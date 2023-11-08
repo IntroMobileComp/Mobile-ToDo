@@ -8,6 +8,7 @@ export default function SignIn({ navigation }) {
     const [id, setId] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const apiPath = 'https://6fb4-161-200-191-32.ngrok-free.app';
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -16,7 +17,7 @@ export default function SignIn({ navigation }) {
     const signIn = async () => {
         axios.post(
             // 'https://cache111.com/todoapi/tokens',
-            'https://b11f-161-200-191-177.ngrok-free.app/tokens',
+            `${apiPath}/tokens`,
             {
                 idUser: id,
                 Password: password,
@@ -94,11 +95,13 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     button: {
+        margin: 10,
         alignItems: 'center',
-        backgroundColor: '#DDDDDD',
-        padding: 10
+        backgroundColor: '#008CBA',
+        padding: 10,
     },
     buttonText: {
+        color: '#fff',
         fontSize: 20,
         fontWeight: 'bold'
     }
